@@ -87,28 +87,35 @@ namespace 水库项目出表.Attributes
         {
             log.Info("进入面积平差");
             //计算原始总面积
-            double shapeAreaSum1 = Convert.ToDouble(_table.Compute("sum(Shape_Area)", ""));
-            double mu = Math.Round(shapeAreaSum1 * 0.0015, 4, MidpointRounding.AwayFromZero);
-            double gq = Math.Round(shapeAreaSum1 * 0.0001, 4, MidpointRounding.AwayFromZero);
+            int patternSpotArea = Convert.ToInt32(_table.Compute("sum(图斑面积)", ""));
+            int RidgeSum = Convert.ToInt32(_table.Compute("sum(田坎面积)", ""));
+            int shapeAreaSum1 = patternSpotArea - RidgeSum;
+            double mu = GetRound(shapeAreaSum1 * 0.0015);
+            double gq = GetRound(shapeAreaSum1 * 0.0001);
 
             //计算保留小数位后的总面积
             double shapeAreaSum2 = Convert.ToDouble(_table.Compute("sum(面积亩)", ""));
-            shapeAreaSum2 = Math.Round(shapeAreaSum2, 4, MidpointRounding.AwayFromZero);
+            shapeAreaSum2 = GetRound(shapeAreaSum2);
 
             double shapeAreaSum3 = Convert.ToDouble(_table.Compute("sum(面积公顷)", ""));
-            shapeAreaSum3 = Math.Round(shapeAreaSum3, 4, MidpointRounding.AwayFromZero);
+            shapeAreaSum3 = GetRound(shapeAreaSum3);
 
             //面积求差
             double exceptArea_mu = mu - shapeAreaSum2;
-            exceptArea_mu = Math.Round(exceptArea_mu, 4, MidpointRounding.AwayFromZero);
+            exceptArea_mu = GetRound(exceptArea_mu);
 
             double exceptArea_gq = gq - shapeAreaSum3;
-            exceptArea_gq = Math.Round(exceptArea_gq, 4, MidpointRounding.AwayFromZero);
+            exceptArea_gq = GetRound(exceptArea_gq);
 
             //将面积差值分配到河流水面,如果不存在河流水面图斑，则分到面积最大的图斑
-            DataRow tempRow = _table.Select("地类代码='1101'", "Shape_Area desc").FirstOrDefault() ?? _table.Select("", "Shape_Area desc").First();
+            DataRow tempRow = _table.Select("地类代码='1101'", "图斑面积 desc").FirstOrDefault() ?? _table.Select("", "图斑面积 desc").First();
             tempRow["面积亩"] = tempRow.Field<double>("面积亩") + exceptArea_mu;
             tempRow["面积公顷"] = tempRow.Field<double>("面积公顷") + exceptArea_gq;
+        }
+
+        public double GetRound(double value)
+        {
+            return Math.Round(value, 4, MidpointRounding.AwayFromZero);
         }
     }
 }

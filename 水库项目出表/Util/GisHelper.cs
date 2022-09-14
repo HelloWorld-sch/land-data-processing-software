@@ -99,7 +99,20 @@ namespace 水库项目出表.Util
                 throw new Exception("缺少字段:"+string.Join(",",resultArray));
             foreach (var standardField in standardFields)
             {
-                Type fieldType = standardField == "Shape_Area" ? typeof(double) : standardField == "图斑编号" ? typeof(int) : typeof(string);
+                Type fieldType;
+                switch (standardField)
+                {
+                    case "图斑面积":
+                    case "田坎面积":
+                        fieldType = typeof(int);
+                        break;
+                    case "图斑编号":
+                        fieldType = typeof(int);
+                        break;
+                    default:
+                        fieldType = typeof(string);
+                        break;
+                }
                 DataColumn column = new DataColumn(standardField, fieldType);
                 dataTable.Columns.Add(column);
             }
@@ -113,9 +126,9 @@ namespace 水库项目出表.Util
                 foreach (var standardField in standardFields)
                 {
                     object value = null;
-                    if (standardField == "Shape_Area")
+                    if (standardField == "图斑面积" || standardField == "田坎面积")
                     {
-                        value = oFeature.GetFieldAsDouble(standardField);
+                        value = oFeature.GetFieldAsInteger(standardField);
                     }
                     else
                     {

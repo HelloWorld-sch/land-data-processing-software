@@ -17,7 +17,7 @@ namespace 水库项目出表.Attributes
     {
         private DataTable jitiTable = null;
         private DataTable guoyouTable = null;
-        public void 土地分类面积汇总表分县()
+        public void 土地分类面积汇总表分县(string unit)
         {
             string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
             try
@@ -33,11 +33,12 @@ namespace 水库项目出表.Attributes
 
                 //标题
                 worksheet.Cells["A1"].Value = worksheet.Cells["A1"].Text.Replace("#水库名#", _reservoirName) + "-分县";
+                worksheet.Cells["CR2"].Value = worksheet.Cells["CR2"].Text.Replace("#单位#", unit);
                 //隐藏第一列
                 worksheet.Column(1).Hidden = true;
 
                 //获取汇总数据
-                DataTable tjTable = GetData(selectCodes, false);
+                DataTable tjTable = GetData(selectCodes, false, unit);
 
                 DataTable resultTable = tjTable.Clone();
                 (from b in tjTable.AsEnumerable() orderby b.Field<string>("市州"), b.Field<string>("县"), b.Field<string>("权属性质") descending, b.Field<string>("乡镇") descending, b.Field<string>("村") descending, b.Field<string>("组") descending, b.Field<int>("权重") select b).CopyToDataTable(resultTable,LoadOption.OverwriteChanges);
@@ -102,7 +103,6 @@ namespace 水库项目出表.Attributes
 
                 //设边框
                 SetBorderStyle(worksheet.Cells[6, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column]);
-
                 package.SaveAs(new FileInfo(saveExcelPath));
                 package.Dispose();
             }
@@ -113,9 +113,9 @@ namespace 水库项目出表.Attributes
             }
         }
 
-        private DataTable GetData(string[] selectCodes,bool fenqu)
+        private DataTable GetData(string[] selectCodes,bool fenqu, string unit)
         {
-            DataTable pivotTable = PivotTable(selectCodes, fenqu);
+            DataTable pivotTable = PivotTable(selectCodes, fenqu, unit);
             jitiTable = pivotTable.Clone();
             pivotTable.Select("权属性质='集体'").CopyToDataTable(jitiTable, LoadOption.OverwriteChanges);
             guoyouTable = pivotTable.Clone();
@@ -144,8 +144,9 @@ namespace 水库项目出表.Attributes
         /// <param name="selectCodes"></param>
         /// <param name="colName"></param>
         /// <returns></returns>
-        private DataTable PivotTable(string[] selectCodes,bool fenqu)
+        private DataTable PivotTable(string[] selectCodes,bool fenqu, string unit)
         {
+            var tillCode = new List<string> { "0101", "0102", "0103" };
             var query = (_table.AsEnumerable().Where(h => selectCodes.Contains(h.Field<string>("地类代码")))
                     .GroupBy(b => new
                     {
@@ -179,7 +180,8 @@ namespace 水库项目出表.Attributes
                             .Select(y => new
                             {
                                 代码 = y.Key,
-                                面积 = y.Sum(m => m.Field<double>("面积公顷"))
+                                图斑面积 = y.Sum(m => m.Field<int>("图斑面积")),
+                                田坎面积 = y.Sum(m => m.Field<int>("田坎面积"))
                             }))
                     }))
                 .OrderByDescending(a => a.权属性质)
@@ -201,11 +203,22 @@ namespace 水库项目出表.Attributes
                 row["村"] = q.权属单位.村;
                 row["组"] = q.权属单位.组;
                 row["权属性质"] = q.权属性质;
-                row["权重"] = q.权属性质=="集体"?1:5;
+                row["权重"] = q.权属性质 == "集体" ? 1 : 5;
                 foreach (var selectCode in selectCodes)
                 {
+                    if ("1203".Equals(selectCode))
+                    {
+                        var ridgeArea = q.地类列表.Where(p => tillCode.Contains(p.代码)).Sum(k => k.田坎面积);
+                        row[selectCode] = GetRound(GetAreaWithUnit(ridgeArea, 0, unit));
+                        continue;
+                    }
                     var dl = q.地类列表.FirstOrDefault(b => b.代码 == selectCode);
-                    row[selectCode] = dl == null ? 0.0 : dl.面积;
+                    if (dl == null)
+                    {
+                        continue;
+                    }
+                    var area = GetRound(GetAreaWithUnit(dl.图斑面积, dl.田坎面积, unit));
+                    row[selectCode] = area;
                 }
                 table.Rows.Add(row);
             }

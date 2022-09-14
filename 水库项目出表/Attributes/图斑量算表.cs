@@ -13,7 +13,7 @@ namespace 水库项目出表.Attributes
 {
     public partial class Export
     {
-        public void 图斑量算表()
+        public void 图斑量算表(string unit)
         {
             string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
             try
@@ -31,7 +31,9 @@ namespace 水库项目出表.Attributes
                                  权属单位 = qsdw,
                                  图斑号 = b.Field<int>("图斑编号"),
                                  地类代码 = b.Field<string>("地类代码"),
-                                 图斑面积 = b.Field<double>("面积公顷"),
+                                 田坎面积 = b.Field<int>("田坎面积"),
+                                 图斑净面积 = b.Field<int>("图斑面积") - b.Field<int>("田坎面积"),
+                                 图斑面积 = b.Field<int>("图斑面积"),
                                  权属性质 = b.Field<string>("权属性质"),
                                  功能分区 = b.Field<string>("功能分区")
                              }).OrderBy(d => d.权属单位).ThenBy(x => x.图斑号);
@@ -53,24 +55,32 @@ namespace 水库项目出表.Attributes
                         int currentRowIndex = i + startIndex;
 
                         worksheet.InsertRow(currentRowIndex, 1); //插入行
+                        var spotArea = GetRound(GetAreaWithUnit(q.图斑净面积, 0, unit));
+                        var ridgeArea = GetRound(GetAreaWithUnit(q.田坎面积, 0, unit));
+                        var allArea = GetRound(GetAreaWithUnit(q.图斑面积, 0, unit));
+
 
                         ExcelRow currentRow = worksheet.Row(currentRowIndex);
                         currentRow.Style.Font.Size = 10; //字体大小
                         currentRow.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                         currentRow.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                         currentRow.Style.WrapText = true;
-                        ExcelRange range = worksheet.Cells[currentRowIndex, 1, currentRowIndex, 6];
+                        ExcelRange range = worksheet.Cells[currentRowIndex, 1, currentRowIndex, 8];
                         SetBorderStyle(range);
 
                         worksheet.Cells[currentRowIndex, 1].Value = q.权属单位; //权属单位
                         worksheet.Cells[currentRowIndex, 2].Value = q.图斑号; //图斑号
                         worksheet.Cells[currentRowIndex, 3].Value = q.地类代码; //地类代码
-                        worksheet.Cells[currentRowIndex, 4].Value = q.图斑面积; //图斑面积
-                        worksheet.Cells[currentRowIndex, 5].Value = q.权属性质; //权属性质
-                        worksheet.Cells[currentRowIndex, 6].Value = q.功能分区; //功能分区
+                        worksheet.Cells[currentRowIndex, 4].Value = ridgeArea; //田坎面积
+                        worksheet.Cells[currentRowIndex, 5].Value = spotArea; //图斑净面积
+                        worksheet.Cells[currentRowIndex, 6].Value = allArea; //图斑面积
+                        worksheet.Cells[currentRowIndex, 7].Value = q.权属性质; //权属性质
+                        worksheet.Cells[currentRowIndex, 8].Value = q.功能分区; //功能分区
 
                         i++;
                     }
+
+                    worksheet.Cells["H2"].Value = worksheet.Cells["H2"].Text.Replace("#单位#", unit);
 
                     package.SaveAs(new FileInfo(saveExcelPath));
                 }

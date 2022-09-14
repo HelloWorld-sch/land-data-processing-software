@@ -86,22 +86,44 @@ namespace 水库项目出表
                 DataColumn column2 = new DataColumn("面积公顷", typeof(double));
                 table.Columns.Add(column2);
 
+                // 输出类型是图斑量表
+                var flag = checkBox2.Checked;
+                var zeroMuList = new List<int>();
+                var zeroHectareList = new List<int>();
                 //新加字段赋值
                 foreach (DataRow row in table.Rows)
                 {
-                    double area = row.Field<double>("Shape_Area");
+                    int patternSpotArea = row.Field<int>("图斑面积");
+                    int ridgeArea = row.Field<int>("田坎面积");
                     int tbh = row.Field<int>("图斑编号");
-                    double mu=Math.Round(area*0.0015, 2, MidpointRounding.AwayFromZero);
+                    double mu, gq;
+                    int sumArea = flag ? patternSpotArea : (patternSpotArea - ridgeArea);
+                    mu = Math.Round((sumArea) * 0.0015, 4, MidpointRounding.AwayFromZero);
                     if (mu.Equals(0))
-                        throw new Exception("图斑编号:" + tbh + ",面积转换成亩并保留两位小数后等于0");
-                    double gq = Math.Round(area * 0.0001, 4, MidpointRounding.AwayFromZero);
+                        zeroMuList.Add(tbh);
+                    gq = Math.Round((sumArea) * 0.0001, 4, MidpointRounding.AwayFromZero);
                     if (gq.Equals(0))
-                        throw new Exception("图斑编号:" + tbh + ",面积转换成公顷并保留四位小数后等于0");
+                        zeroHectareList.Add(tbh);
                     row["面积亩"] = mu;
                     row["面积公顷"] = gq;
                 }
-                
-                data.Adjustment();//面积平差
+
+                if (zeroMuList.Count != 0 || zeroHectareList.Count != 0)
+                {
+                    string msg = "";
+                    if (zeroMuList.Count != 0)
+                    {
+                        msg += "图斑编号:" + string.Join(",", zeroMuList.ToArray()) + ",面积转换成公顷并保留四位小数后等于0;";
+                    }
+                    if (zeroHectareList.Count != 0)
+                    {
+                        msg += "图斑编号:" + string.Join(",", zeroHectareList.ToArray()) + ",面积转换成公顷并保留四位小数后等于0";
+                    }
+                    throw new Exception(msg);
+                }
+
+                // 面积平差：已经四舍五入过，不需要再做平差处理
+                // data.Adjustment(); 
 
                 string saveDir = Path.Combine(Application.StartupPath, "数据导出");
                 if (!Directory.Exists(saveDir))
@@ -119,15 +141,15 @@ namespace 水库项目出表
                 parameter.UseType = sylx;
                 Export export = new Export(parameter);
                 if(checkBox1.Checked)
-                    export.土地调查成果确认表();
+                    export.土地调查成果确认表(comboBox3.SelectedItem.ToString());
                 if (checkBox2.Checked)
-                    export.图斑量算表();
+                    export.图斑量算表(comboBox4.SelectedItem.ToString());
                 if (checkBox3.Checked)
-                    export.权属情况汇总表();
+                    export.权属情况汇总表(comboBox5.SelectedItem.ToString());
                 if (checkBox4.Checked)
-                    export.土地分类面积汇总表分县();
+                    export.土地分类面积汇总表分县(comboBox6.SelectedItem.ToString());
                 if (checkBox5.Checked)
-                    export.土地分类面积汇总表分区();
+                    export.土地分类面积汇总表分区(comboBox7.SelectedItem.ToString());
                 
                 MessageBox.Show("OK");
             }

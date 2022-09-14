@@ -13,7 +13,7 @@ namespace 水库项目出表.Attributes
 {
     public partial class Export
     {
-        public void 土地调查成果确认表()
+        public void 土地调查成果确认表(string unit)
         {
             string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
             try
@@ -44,11 +44,12 @@ namespace 水库项目出表.Attributes
                             户主 = g.Key,
                             地块编号 = string.Join(",", tbs),
                             耕地 = g.Where(d => gddm.Contains(d.Field<string>("地类代码")))
-                                .Sum(e => e.Field<double>("面积亩")),
+                                .Sum(e => e.Field<int>("图斑面积")),
                             林地 = g.Where(d => lddm.Contains(d.Field<string>("地类代码")))
-                                .Sum(e => e.Field<double>("面积亩")),
+                                .Sum(e => e.Field<int>("图斑面积")),
                             园地 = g.Where(d => yddm.Contains(d.Field<string>("地类代码")))
-                                .Sum(e => e.Field<double>("面积亩"))
+                                .Sum(e => e.Field<int>("图斑面积")),
+                            田坎 = g.Sum(e => e.Field<int>("田坎面积"))
                         };
 
                     string dir = Path.Combine(_saveDir, methodName + "-" + _sylx, city, county);
@@ -61,7 +62,9 @@ namespace 水库项目出表.Attributes
                         ExcelWorksheet worksheet = GetWorksheet(package, "Sheet1");
 
                         worksheet.Cells["A1"].Value = worksheet.Cells["A1"].Text.Replace("#水库名#", _reservoirName);
-                        worksheet.Cells["A2"].Value = worksheet.Cells["A2"].Text.Replace("#区县名#", xzq.County).Replace("#乡镇名#", xzq.Town).Replace("#村名#", xzq.Village).Replace("#组名#", xzq.Group);
+                        worksheet.Cells["A2"].Value = worksheet.Cells["A2"].Text.Replace("#区县名#", xzq.County).
+                            Replace("#乡镇名#", xzq.Town).Replace("#村名#", xzq.Village).Replace("#组名#", xzq.Group);
+                        worksheet.Cells["D3"].Value = worksheet.Cells["D3"].Text.Replace("#单位#", unit);
 
                         int i = 0;
                         int startIndex = 5;
@@ -69,9 +72,9 @@ namespace 水库项目出表.Attributes
                         {
                             int currentRowIndex = i + startIndex;
 
-                            double gdArea = Math.Round(q.耕地, 2, MidpointRounding.AwayFromZero);
-                            double ldArea = Math.Round(q.林地, 2, MidpointRounding.AwayFromZero);
-                            double ydArea = Math.Round(q.园地, 2, MidpointRounding.AwayFromZero);
+                            double gdArea = GetRound(GetAreaWithUnit(q.耕地, q.田坎, unit));
+                            double ldArea = GetRound(GetAreaWithUnit(q.林地, 0, unit));
+                            double ydArea = GetRound(GetAreaWithUnit(q.园地, 0, unit));
                             double sumArea = gdArea + ldArea + ydArea;
                             if (sumArea.Equals(0.0)) continue;
 
@@ -113,6 +116,20 @@ namespace 水库项目出表.Attributes
             {
                 log.Error("导出" + methodName + "失败," + e.ToString());
                 throw ;
+            }
+        }
+
+        public double GetAreaWithUnit(double spotArea, double ridgeArea, string unit)
+        {
+            var value = spotArea - ridgeArea;
+            switch (unit)
+            {
+                case "亩":
+                    return value * 0.0015;
+                case "公顷":
+                    return value * 0.0001;
+                default:
+                    return value;
             }
         }
     }

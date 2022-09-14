@@ -15,7 +15,7 @@ namespace 水库项目出表.Attributes
 {
     public partial class Export
     {
-        public void 土地分类面积汇总表分区()
+        public void 土地分类面积汇总表分区(string unit)
         {
             string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
             try
@@ -33,7 +33,7 @@ namespace 水库项目出表.Attributes
                 worksheet.Cells["A1"].Value = worksheet.Cells["A1"].Text.Replace("#水库名#", _reservoirName) + "-分区";
 
                 //获取汇总数据
-                DataTable tjTable = GetData(selectCodes, true);
+                DataTable tjTable = GetData(selectCodes, true, unit);
 
                 DataTable resultTable = tjTable.Clone();
                 (from b in tjTable.AsEnumerable() orderby b.Field<string>("功能分区"), b.Field<string>("市州"), b.Field<string>("县"), b.Field<string>("权属性质") descending, b.Field<string>("乡镇") descending, b.Field<string>("村") descending, b.Field<string>("组") descending, b.Field<int>("权重") select b).CopyToDataTable(resultTable, LoadOption.OverwriteChanges);

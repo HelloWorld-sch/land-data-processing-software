@@ -14,7 +14,7 @@ namespace 水库项目出表.Attributes
 {
     public partial class Export
     {
-        public void 权属情况汇总表()
+        public void 权属情况汇总表(string unit)
         {
             string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
             try
@@ -32,7 +32,7 @@ namespace 水库项目出表.Attributes
                     string city = xzq.City;
                     string county = xzq.County;
 
-                    var query = from b in _table.Select("市州='"+city+"' and 县='"+county+"'")
+                    var query = from b in _table.Select("市州='" + city + "' and 县='" + county + "'")
                         let jt = b.Field<string>("乡镇") + b.Field<string>("村") + b.Field<string>("组")
                         group b by new
                         {
@@ -44,8 +44,9 @@ namespace 水库项目出表.Attributes
                         {
                             土地权利人 = g.Key.QSDW,
                             权属性质 = g.Key.QSXZ,
-                            拟占土地面积 = g.Where(c => selectCodes.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<double>("面积公顷")),
-                            耕地 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<double>("面积公顷"))
+                            拟占土地面积 = g.Where(c => selectCodes.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("图斑面积")),
+                            耕地 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("图斑面积")),
+                            田坎 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("田坎面积"))
                         };
 
                     string dir = Path.Combine(_saveDir, methodName + "-" + _sylx, city, county);
@@ -60,13 +61,15 @@ namespace 水库项目出表.Attributes
 
                         int i = 0;
                         int startIndex = 5;
+                        double sumTillArea = 0;
+                        double sumLandArea = 0;
                         foreach (var q in query)
                         {
                             int currentRowIndex = i + startIndex;
-
-                            double gdArea = q.耕地;
-                            //if (gdArea.Equals(0))
-                            //    continue;
+                            var tillArea = GetRound(GetAreaWithUnit(q.耕地, q.田坎, unit));
+                            var landArea = GetRound(GetAreaWithUnit(q.拟占土地面积, 0, unit));
+                            sumTillArea += tillArea;
+                            sumLandArea += landArea;
 
                             worksheet.InsertRow(currentRowIndex, 1); //插入行
 
@@ -81,17 +84,18 @@ namespace 水库项目出表.Attributes
                             worksheet.Cells[currentRowIndex, 1].Value = i + 1; //序号
                             worksheet.Cells[currentRowIndex, 2].Value = q.土地权利人; //土地权利人
                             worksheet.Cells[currentRowIndex, 3].Value = q.权属性质; //权属性质
-                            worksheet.Cells[currentRowIndex, 7].Value =q.拟占土地面积; //拟占土地面积
-                            if (!gdArea.Equals(0.0))
-                                worksheet.Cells[currentRowIndex, 8].Value = gdArea; //耕地
-
-                            worksheet.Cells["A2"].Value = worksheet.Cells["A2"].Text.Replace("#水库名#", _reservoirName);
-                            worksheet.Cells["F2"].Value = worksheet.Cells["F2"].Text.Replace("#区县名#", county);
-                            worksheet.Cells["G7"].Value = worksheet.Cells["G7"].Text.Replace("#制表单位#", _zbdw);
+                            worksheet.Cells[currentRowIndex, 7].Value = landArea; //拟占土地面积
+                            if (!tillArea.Equals(0.0))
+                                worksheet.Cells[currentRowIndex, 8].Value = tillArea; //耕地
                             i++;
                         }
-                        worksheet.Cells["G" + (i + startIndex)].Value =query.Sum(b=>b.拟占土地面积);
-                        worksheet.Cells["H" + (i + startIndex)].Value=query.Sum(b=>b.耕地);
+                        var lastRowIndex = i + startIndex;
+                        worksheet.Cells["A2"].Value = worksheet.Cells["A2"].Text.Replace("#水库名#", _reservoirName);
+                        worksheet.Cells["F2"].Value = worksheet.Cells["F2"].Text.Replace("#区县名#", county);
+                        worksheet.Cells["H2"].Value = worksheet.Cells["H2"].Text.Replace("#单位#", unit);
+                        worksheet.Cells["G" + (lastRowIndex + 1)].Value = worksheet.Cells["G" + (lastRowIndex + 1)].Text.Replace("#制表单位#", _zbdw);
+                        worksheet.Cells["G" + lastRowIndex].Value = sumLandArea;
+                        worksheet.Cells["H" + lastRowIndex].Value= sumTillArea;
                         package.SaveAs(new FileInfo(saveExcelPath));
                     }
                 }
@@ -101,6 +105,11 @@ namespace 水库项目出表.Attributes
                 log.Error("导出" + methodName + "失败," + e.ToString());
                 throw ;
             }
+        }
+
+        public double GetRound(double value)
+        {
+            return Math.Round(value, 4, MidpointRounding.AwayFromZero);
         }
     }
 }
