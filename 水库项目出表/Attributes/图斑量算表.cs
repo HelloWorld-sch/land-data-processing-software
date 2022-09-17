@@ -31,12 +31,13 @@ namespace 水库项目出表.Attributes
                                  权属单位 = qsdw,
                                  图斑号 = b.Field<int>("图斑编号"),
                                  地类代码 = b.Field<string>("地类代码"),
+                                 地类名称 = b.Field<string>("地类名称"),
                                  田坎面积 = b.Field<int>("田坎面积"),
                                  图斑净面积 = b.Field<int>("图斑面积") - b.Field<int>("田坎面积"),
                                  图斑面积 = b.Field<int>("图斑面积"),
                                  权属性质 = b.Field<string>("权属性质"),
                                  功能分区 = b.Field<string>("功能分区")
-                             }).OrderBy(d => d.权属单位).ThenBy(x => x.图斑号);
+                             }).OrderBy(d => d.图斑号);
 
 
                 string dir = Path.Combine(_saveDir, methodName + "-" + _sylx);
@@ -65,22 +66,23 @@ namespace 水库项目出表.Attributes
                         currentRow.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                         currentRow.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                         currentRow.Style.WrapText = true;
-                        ExcelRange range = worksheet.Cells[currentRowIndex, 1, currentRowIndex, 8];
+                        ExcelRange range = worksheet.Cells[currentRowIndex, 1, currentRowIndex, 9];
                         SetBorderStyle(range);
 
                         worksheet.Cells[currentRowIndex, 1].Value = q.权属单位; //权属单位
                         worksheet.Cells[currentRowIndex, 2].Value = q.图斑号; //图斑号
                         worksheet.Cells[currentRowIndex, 3].Value = q.地类代码; //地类代码
-                        worksheet.Cells[currentRowIndex, 4].Value = ridgeArea; //田坎面积
-                        worksheet.Cells[currentRowIndex, 5].Value = spotArea; //图斑净面积
-                        worksheet.Cells[currentRowIndex, 6].Value = allArea; //图斑面积
-                        worksheet.Cells[currentRowIndex, 7].Value = q.权属性质; //权属性质
-                        worksheet.Cells[currentRowIndex, 8].Value = q.功能分区; //功能分区
+                        worksheet.Cells[currentRowIndex, 4].Value = q.地类名称; //田坎面积
+                        worksheet.Cells[currentRowIndex, 5].Value = ridgeArea; //田坎面积
+                        worksheet.Cells[currentRowIndex, 6].Value = spotArea; //图斑净面积
+                        worksheet.Cells[currentRowIndex, 7].Value = allArea; //图斑面积
+                        worksheet.Cells[currentRowIndex, 8].Value = q.权属性质; //权属性质
+                        worksheet.Cells[currentRowIndex, 9].Value = q.功能分区; //功能分区
 
                         i++;
                     }
 
-                    worksheet.Cells["H2"].Value = worksheet.Cells["H2"].Text.Replace("#单位#", unit);
+                    worksheet.Cells["I2"].Value = worksheet.Cells["I2"].Text.Replace("#单位#", unit);
 
                     package.SaveAs(new FileInfo(saveExcelPath));
                 }

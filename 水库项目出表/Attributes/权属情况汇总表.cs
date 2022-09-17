@@ -32,7 +32,7 @@ namespace 水库项目出表.Attributes
                     string city = xzq.City;
                     string county = xzq.County;
 
-                    var query = from b in _table.Select("市州='" + city + "' and 县='" + county + "'")
+                    var query = (from b in _table.Select("市州='" + city + "' and 县='" + county + "'")
                         let jt = b.Field<string>("乡镇") + b.Field<string>("村") + b.Field<string>("组")
                         group b by new
                         {
@@ -47,7 +47,7 @@ namespace 水库项目出表.Attributes
                             拟占土地面积 = g.Where(c => selectCodes.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("图斑面积")),
                             耕地 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("图斑面积")),
                             田坎 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("田坎面积"))
-                        };
+                        }).OrderByDescending(p => p.权属性质).ThenBy(o => o.土地权利人);
 
                     string dir = Path.Combine(_saveDir, methodName + "-" + _sylx, city, county);
                     if (!Directory.Exists(dir))
