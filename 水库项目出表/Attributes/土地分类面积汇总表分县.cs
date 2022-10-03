@@ -258,7 +258,7 @@ namespace 水库项目出表.Attributes
         /// <param name="weight"></param>
         /// <param name="qsxz"></param>
         /// <returns></returns>
-        private DataTable SumTable(DataTable dt, string[] xzqFields, int weight,string qsxz)
+        private DataTable SumTable(DataTable dt, string[] xzqFields, int weight,string qsxz, bool isCity = false)
         {
             DataTable table = dt.Clone();
 
@@ -266,11 +266,19 @@ namespace 水库项目出表.Attributes
             bool fenqu = distinctValues.TrueForAll(b=>!string.IsNullOrEmpty(b));
 
             var xzqFldList = xzqFields.ToList();
-            if (!fenqu) xzqFldList.Remove("功能分区");
+            // 分区
+            if (!fenqu)
+            {
+                xzqFldList.Remove("功能分区");
+            }
             var qsdwDistinctTable = dt.AsDataView().ToTable(true, xzqFldList.ToArray());
             foreach (DataRow dataRow in qsdwDistinctTable.Rows)
             {
                 table.ImportRow(dataRow);
+                if (isCity)
+                {
+                    xzqFldList.Remove("县");
+                }
             }
 
             foreach (DataRow row in table.Rows)
@@ -355,6 +363,36 @@ namespace 水库项目出表.Attributes
             DataTable gyTable = SumTable(guoyouTable, xzqFields, 7,"");
             jtTable.Merge(gyTable,true);
             return SumTable(jtTable, xzqFields, 7,"");
+        }
+        /// <summary>
+        /// 市集体土地合计
+        /// </summary>
+        /// <returns></returns>
+        private DataTable STHJTable()
+        {
+            string[] xzqFields = new string[] { "功能分区", "市州" };
+            return SumTable(jitiTable, xzqFields, 8, "集体");
+        }
+        /// <summary>
+        /// 市国有土地合计
+        /// </summary>
+        /// <returns></returns>
+        private DataTable SYHJTable()
+        {
+            string[] xzqFields = new string[] { "功能分区", "市州"};
+            return SumTable(guoyouTable, xzqFields, 9, "国有");
+        }
+        /// <summary>
+        /// 市土地合计
+        /// </summary>
+        /// <returns></returns>
+        private DataTable SHJTable()
+        {
+            string[] xzqFields = new string[] { "功能分区", "市州"};
+            DataTable jtTable = SumTable(jitiTable, xzqFields, 10, "");
+            DataTable gyTable = SumTable(guoyouTable, xzqFields, 10, "");
+            jtTable.Merge(gyTable, true);
+            return SumTable(jtTable, xzqFields, 10, "");
         }
 
         private void DLHJ(ExcelWorksheet worksheet, int rowIndex)

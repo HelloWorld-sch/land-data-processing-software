@@ -69,6 +69,7 @@
     <Compile Include="Attributes\Data.cs" />
     <Compile Include="Attributes\Export.cs" />
     <Compile Include="Attributes\土地分类面积汇总表分区.cs" />
+    <Compile Include="Attributes\土地分类面积汇总表分市.cs" />
     <Compile Include="Attributes\土地分类面积汇总表分县.cs" />
     <Compile Include="Attributes\权属情况汇总表.cs" />
     <Compile Include="Attributes\图斑量算表.cs" />

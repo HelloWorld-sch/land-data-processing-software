@@ -67,7 +67,7 @@ namespace 水库项目出表
                 List<Landuse> landusesTreeView = Tools.GetLandusesFromTreeView(treeView1);//读取选择的地类
                 if (landusesTreeView.Count == 0)
                     throw new Exception("没有选中三级节点");
-                if (!checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked && !checkBox4.Checked && !checkBox5.Checked)
+                if (!checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked && !checkBox4.Checked && !checkBox5.Checked && !checkBox6.Checked)
                     throw new Exception("请选择输出类型");
 
                 string sylx = comboBox2.SelectedItem.ToString();//使用类型
@@ -150,7 +150,9 @@ namespace 水库项目出表
                     export.土地分类面积汇总表分县(comboBox6.SelectedItem.ToString());
                 if (checkBox5.Checked)
                     export.土地分类面积汇总表分区(comboBox7.SelectedItem.ToString());
-                
+                if (checkBox6.Checked)
+                    export.土地分类面积汇总表分市(comboBox8.SelectedItem.ToString());
+
                 MessageBox.Show("OK");
             }
             catch (Exception ex)
