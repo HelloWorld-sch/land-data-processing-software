@@ -69,11 +69,13 @@
     <Compile Include="Attributes\Data.cs" />
     <Compile Include="Attributes\Export.cs" />
     <Compile Include="Attributes\土地分类面积汇总表分区.cs" />
+    <Compile Include="Attributes\报件系统面积表.cs" />
     <Compile Include="Attributes\土地分类面积汇总表分市.cs" />
     <Compile Include="Attributes\土地分类面积汇总表分县.cs" />
     <Compile Include="Attributes\权属情况汇总表.cs" />
     <Compile Include="Attributes\图斑量算表.cs" />
     <Compile Include="Attributes\土地调查成果确认表.cs" />
+    <Compile Include="Entity\ExcelTypeEnum.cs" />
     <Compile Include="Entity\ExportParameter.cs" />
     <Compile Include="Entity\Landuse.cs" />
     <Compile Include="Entity\Sum.cs" />
@@ -130,6 +132,12 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="LandTypeMap\报件系统面积地类位置.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="LandTypeSum\报件系统面积汇总位置.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="lib\EPPlus.dll" />
     <Content Include="lib\gdalconst_csharp.dll" />
     <Content Include="lib\gdalconst_wrap.dll" />
@@ -143,10 +151,10 @@
     <Content Include="三调三大类.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="地类位置.txt">
+    <Content Include="LandTypeMap\土地分类面积地类位置.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="汇总位置.txt">
+    <Content Include="LandTypeSum\土地分类面积汇总位置.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

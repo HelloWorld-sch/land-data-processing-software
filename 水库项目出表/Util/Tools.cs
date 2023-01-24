@@ -147,11 +147,22 @@ namespace 水库项目出表.Util
             return xzqs;
         }
 
-        public static Dictionary<string, int> GetDLWZ()
+        public static Dictionary<string, int> GetDLWZ(ExcelTypeEnum type)
         {
             Dictionary<string,int> wzDic=new Dictionary<string, int>();
-
-            string dlwzPath = Path.Combine(Application.StartupPath, "地类位置.txt");
+            string path = string.Empty;
+            switch (type)
+            {
+                case ExcelTypeEnum.LandClassify:
+                    path = "LandTypeMap\\土地分类面积地类位置.txt";
+                    break;
+                case ExcelTypeEnum.FilingSystem:
+                    path = "LandTypeMap\\报件系统面积地类位置.txt";
+                    break;
+                default:
+                    break;
+            }
+            string dlwzPath = Path.Combine(Application.StartupPath, path);
             try
             {
                 string[] lines = File.ReadAllLines(dlwzPath).Where(b => !string.IsNullOrEmpty(b)).ToArray();
@@ -169,11 +180,22 @@ namespace 水库项目出表.Util
             return wzDic;
         }
 
-        public static List<Sum> GetSumEntiyList()
+        public static List<Sum> GetSumEntiyList(ExcelTypeEnum type)
         {
             List<Sum> sums=new List<Sum>();
-
-            string hzwzPath = Path.Combine(Application.StartupPath, "汇总位置.txt");
+            string path = string.Empty;
+            switch (type)
+            {
+                case ExcelTypeEnum.LandClassify:
+                    path = "LandTypeSum\\土地分类面积汇总位置.txt";
+                    break;
+                case ExcelTypeEnum.FilingSystem:
+                    path = "LandTypeSum\\报件系统面积汇总位置.txt";
+                    break;
+                default:
+                    break;
+            }
+            string hzwzPath = Path.Combine(Application.StartupPath, path);
             try
             {
                 string[] lines = File.ReadAllLines(hzwzPath).Where(b => !string.IsNullOrEmpty(b)).ToArray();

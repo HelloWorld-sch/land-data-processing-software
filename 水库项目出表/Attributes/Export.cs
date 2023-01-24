@@ -35,8 +35,8 @@ namespace 水库项目出表.Attributes
             _reservoirName = parameter.ReservoirName;
             _zbdw = parameter.Unit;
             _sylx = parameter.UseType;
-            _dlwzDic = Tools.GetDLWZ();
-            _sums = Tools.GetSumEntiyList();
+            _dlwzDic = Tools.GetDLWZ(ExcelTypeEnum.LandClassify);
+            _sums = Tools.GetSumEntiyList(ExcelTypeEnum.LandClassify);
         }
         private ExcelWorksheet GetWorksheet(ExcelPackage package, string sheetName)
         {
