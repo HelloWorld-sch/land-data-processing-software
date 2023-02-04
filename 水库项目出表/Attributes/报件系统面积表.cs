@@ -38,7 +38,7 @@ namespace 水库项目出表.Attributes
                 string dir = Path.Combine(_saveDir, methodName + "-" + _sylx);
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
-                string saveExcelPath = Path.Combine(dir, methodName + ".xlsx");
+                string saveExcelPath = Path.Combine(dir, methodName + ".xlsm");
 
                 //数据写入excel
                 var rows = resultTable.Rows;
@@ -57,16 +57,22 @@ namespace 水库项目出表.Attributes
                     foreach (var item in _dlwzDic)
                     {
                         var columnList = item.Key.Split('|').ToList();
+                        object value;
                         if (columnList.Count > 1)
                         {
-                            var cells = columnList.Select(b => "R" + i + "C" + b).ToArray();
-                            string formula = "=sum(" + string.Join(",", cells) + ")";
-                            worksheet.Cells[3 + i, item.Value].FormulaR1C1 = formula;
+                            double sum = 0;
+                            foreach (var column in columnList)
+                            {
+                                if(row[column] is double)
+                                    sum += Convert.ToDouble(row[column]);
+                            }
+                            value = sum == 0 ? new DataColumn().DefaultValue : sum;
                         }
                         else
                         {
-                            worksheet.Cells[3 + i, item.Value].Value = row[columnList[0]];
+                            value = row[columnList[0]];
                         }
+                        worksheet.Cells[3 + i, item.Value].Value = value;
                     }
                     //地类汇总
                     DLHJ(worksheet, 3 + i);
