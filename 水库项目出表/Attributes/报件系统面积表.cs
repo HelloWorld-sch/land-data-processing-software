@@ -21,7 +21,7 @@ namespace 水库项目出表.Attributes
             try
             {
                 log.Info("进入" + methodName);
-                string templatePath = Path.Combine(Application.StartupPath, "Template\\报件系统面积表.xlsm");
+                string templatePath = Path.Combine(Application.StartupPath, "Template\\报件系统面积表.xlsx");
 
                 string[] selectCodes = _landuses.Select(b => b.Code).ToArray();
 
@@ -38,7 +38,7 @@ namespace 水库项目出表.Attributes
                 string dir = Path.Combine(_saveDir, methodName + "-" + _sylx);
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
-                string saveExcelPath = Path.Combine(dir, methodName + ".xlsm");
+                string saveExcelPath = Path.Combine(dir, methodName + ".xlsx");
 
                 //数据写入excel
                 var rows = resultTable.Rows;

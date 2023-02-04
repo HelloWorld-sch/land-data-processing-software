@@ -126,10 +126,10 @@
     <None Include="Template\土地调查成果确认表.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Template\报件系统面积表.xlsm" />
     <None Include="Template\权属情况汇总表.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="报件系统面积表.xlsx" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
