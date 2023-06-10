@@ -81,47 +81,47 @@ namespace 水库项目出表
                 Data data=new Data(table);
                 data.Check();//数据检查
                
-                //添加保留面积字段
-                DataColumn column1 = new DataColumn("面积亩", typeof(double));
-                table.Columns.Add(column1);
-                DataColumn column2 = new DataColumn("面积公顷", typeof(double));
-                table.Columns.Add(column2);
+                ////添加保留面积字段
+                //DataColumn column1 = new DataColumn("面积亩", typeof(double));
+                //table.Columns.Add(column1);
+                //DataColumn column2 = new DataColumn("面积公顷", typeof(double));
+                //table.Columns.Add(column2);
 
-                // 输出类型是图斑量表
-                var flag = checkBox2.Checked;
-                var zeroMuList = new List<int>();
-                var zeroHectareList = new List<int>();
-                //新加字段赋值
-                foreach (DataRow row in table.Rows)
-                {
-                    int patternSpotArea = row.Field<int>("图斑面积");
-                    int ridgeArea = row.Field<int>("田坎面积");
-                    int tbh = row.Field<int>("图斑编号");
-                    double mu, gq;
-                    int sumArea = flag ? patternSpotArea : (patternSpotArea - ridgeArea);
-                    mu = Math.Round((sumArea) * 0.0015, 4, MidpointRounding.AwayFromZero);
-                    if (mu.Equals(0))
-                        zeroMuList.Add(tbh);
-                    gq = Math.Round((sumArea) * 0.0001, 4, MidpointRounding.AwayFromZero);
-                    if (gq.Equals(0))
-                        zeroHectareList.Add(tbh);
-                    row["面积亩"] = mu;
-                    row["面积公顷"] = gq;
-                }
+                //// 输出类型是图斑量表
+                //var flag = checkBox2.Checked;
+                //var zeroMuList = new List<int>();
+                //var zeroHectareList = new List<int>();
+                ////新加字段赋值
+                //foreach (DataRow row in table.Rows)
+                //{
+                //    int patternSpotArea = row.Field<int>("图斑面积");
+                //    int ridgeArea = row.Field<int>("田坎面积");
+                //    int tbh = row.Field<int>("图斑编号");
+                //    double mu, gq;
+                //    int sumArea = flag ? patternSpotArea : (patternSpotArea - ridgeArea);
+                //    mu = Math.Round((sumArea) * 0.0015, 2, MidpointRounding.AwayFromZero);
+                //    if (mu.Equals(0))
+                //        zeroMuList.Add(tbh);
+                //    gq = Math.Round((sumArea) * 0.0001, 2, MidpointRounding.AwayFromZero);
+                //    if (gq.Equals(0))
+                //        zeroHectareList.Add(tbh);
+                //    row["面积亩"] = mu;
+                //    row["面积公顷"] = gq;
+                //}
 
-                if (zeroMuList.Count != 0 || zeroHectareList.Count != 0)
-                {
-                    string msg = "";
-                    if (zeroMuList.Count != 0)
-                    {
-                        msg += "图斑编号:" + string.Join(",", zeroMuList.ToArray()) + ",面积转换成公顷并保留四位小数后等于0;";
-                    }
-                    if (zeroHectareList.Count != 0)
-                    {
-                        msg += "图斑编号:" + string.Join(",", zeroHectareList.ToArray()) + ",面积转换成公顷并保留四位小数后等于0";
-                    }
-                    throw new Exception(msg);
-                }
+                //if (zeroMuList.Count != 0 || zeroHectareList.Count != 0)
+                //{
+                //    string msg = "";
+                //    if (zeroMuList.Count != 0)
+                //    {
+                //        msg += "图斑编号:" + string.Join(",", zeroMuList.ToArray()) + ",面积转换成公顷并保留四位小数后等于0;";
+                //    }
+                //    if (zeroHectareList.Count != 0)
+                //    {
+                //        msg += "图斑编号:" + string.Join(",", zeroHectareList.ToArray()) + ",面积转换成公顷并保留四位小数后等于0";
+                //    }
+                //    throw new Exception(msg);
+                //}
 
                 // 面积平差：已经四舍五入过，不需要再做平差处理
                 // data.Adjustment(); 

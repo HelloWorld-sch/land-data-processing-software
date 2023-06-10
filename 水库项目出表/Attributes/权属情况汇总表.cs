@@ -109,7 +109,7 @@ namespace 水库项目出表.Attributes
 
         public double GetRound(double value)
         {
-            return Math.Round(value, 4, MidpointRounding.AwayFromZero);
+            return Math.Round(value, 2, MidpointRounding.AwayFromZero);
         }
     }
 }
