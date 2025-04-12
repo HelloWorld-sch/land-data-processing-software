@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -17,6 +18,9 @@ namespace 水库项目出表.Attributes
     {
         private DataTable jitiTable = null;
         private DataTable guoyouTable = null;
+        
+        private static readonly Regex _digitRegex = new Regex(@"^\d+", RegexOptions.Compiled);
+        
         public void 土地分类面积汇总表分县(string unit)
         {
             string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
@@ -39,9 +43,31 @@ namespace 水库项目出表.Attributes
 
                 //获取汇总数据
                 DataTable tjTable = GetData(selectCodes, false, unit);
-
+                
                 DataTable resultTable = tjTable.Clone();
-                (from b in tjTable.AsEnumerable() orderby b.Field<string>("市州"), b.Field<string>("县"), b.Field<string>("权属性质") descending, b.Field<string>("乡镇") descending, b.Field<string>("村") descending, b.Field<string>("组") descending, b.Field<int>("权重") select b).CopyToDataTable(resultTable,LoadOption.OverwriteChanges);
+
+                var query = from b in tjTable.AsEnumerable()
+                    // 新增逻辑：提取"组"列中的数字并转换为整数用于排序
+                    let groupName = b.Field<string>("组")
+                    let groupNumber = string.IsNullOrEmpty(groupName) 
+                        ? int.MaxValue
+                        : _digitRegex.Match(groupName) is Match match && match.Success 
+                            ? int.Parse(match.Value) 
+                            : int.MaxValue
+                    orderby 
+                        b.Field<string>("市州"), 
+                        b.Field<string>("县"), 
+                        b.Field<string>("权属性质") descending, 
+                        b.Field<string>("乡镇") descending, 
+                        b.Field<string>("村") descending, 
+                        groupNumber ,  // 按数字排序（注意此处是降序）
+                        b.Field<int>("权重")      // 原逻辑保持
+                    select b;
+
+                query.CopyToDataTable(resultTable, LoadOption.OverwriteChanges);
+
+                // DataTable resultTable = tjTable.Clone();
+                // (from b in tjTable.AsEnumerable() orderby b.Field<string>("市州"), b.Field<string>("县"), b.Field<string>("权属性质") descending, b.Field<string>("乡镇") descending, b.Field<string>("村") descending, b.Field<string>("组") descending, b.Field<int>("权重") select b).CopyToDataTable(resultTable,LoadOption.OverwriteChanges);
 
                 string dir = Path.Combine(_saveDir, methodName + "-" + _sylx);
                 if (!Directory.Exists(dir))

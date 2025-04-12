@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -44,10 +45,20 @@ namespace 水库项目出表.Attributes
                         {
                             土地权利人 = g.Key.QSDW,
                             权属性质 = g.Key.QSXZ,
+                            乡镇 = g.First().Field<string>("乡镇"),  // 从组内第一条记录获取乡镇
+                            村 = g.First().Field<string>("村"),    // 从组内第一条记录获取村
+                            组数字 = string.IsNullOrEmpty(g.First().Field<string>("组"))
+                                ? int.MaxValue
+                                : _digitRegex.Match(g.First().Field<string>("组")) is Match match && match.Success
+                                    ? int.Parse(match.Value)
+                                    : int.MaxValue,
                             拟占土地面积 = g.Where(c => selectCodes.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("图斑面积")),
                             耕地 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("图斑面积")),
                             田坎 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("田坎面积"))
-                        }).OrderByDescending(p => p.权属性质).ThenBy(o => o.土地权利人);
+                        }).OrderByDescending(p => p.权属性质)
+                        .ThenBy(p => p.乡镇)
+                        .ThenBy(p => p.村)
+                        .ThenBy(p => p.组数字);
 
                     string dir = Path.Combine(_saveDir, methodName + "-" + _sylx, city, county);
                     if (!Directory.Exists(dir))
