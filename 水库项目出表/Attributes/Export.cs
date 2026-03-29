@@ -25,8 +25,9 @@ namespace 水库项目出表.Attributes
         private string _sylx;
         private Dictionary<string, int> _dlwzDic;
         private List<Sum> _sums;
+        private int _digit;
 
-        public Export(ExportParameter parameter)
+        public Export(ExportParameter parameter, decimal digit)
         {
             _landuses = parameter.Landuses;
             //_xzqs = Tools.GetXZQ(parameter.DataSource, "");
@@ -37,6 +38,8 @@ namespace 水库项目出表.Attributes
             _sylx = parameter.UseType;
             _dlwzDic = Tools.GetDLWZ(ExcelTypeEnum.LandClassify);
             _sums = Tools.GetSumEntiyList(ExcelTypeEnum.LandClassify);
+            _digit = (int)digit;
+
         }
         private ExcelWorksheet GetWorksheet(ExcelPackage package, string sheetName)
         {

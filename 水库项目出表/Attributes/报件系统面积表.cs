@@ -77,6 +77,8 @@ namespace 水库项目出表.Attributes
                     //地类汇总
                     DLHJ(worksheet, 3 + i);
                 }
+                
+                FormatAllDecimals(worksheet);
 
                 //设边框
                 SetBorderStyle(worksheet.Cells[3, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column]);

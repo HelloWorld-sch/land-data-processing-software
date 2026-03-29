@@ -110,6 +110,8 @@ namespace 水库项目出表.Attributes
                 MergeCells(worksheet, 2);
                 MergeCells(worksheet, 3);
                 MergeCells(worksheet, 4);
+                
+                FormatAllDecimals(worksheet);
 
                 //设边框
                 SetBorderStyle(worksheet.Cells[6, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column]);

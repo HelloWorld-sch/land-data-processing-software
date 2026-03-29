@@ -83,6 +83,8 @@ namespace 水库项目出表.Attributes
                     }
 
                     worksheet.Cells["I2"].Value = worksheet.Cells["I2"].Text.Replace("#单位#", unit);
+                    
+                    FormatAllDecimals(worksheet);
 
                     package.SaveAs(new FileInfo(saveExcelPath));
                 }

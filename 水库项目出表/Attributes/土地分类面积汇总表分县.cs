@@ -127,6 +127,8 @@ namespace 水库项目出表.Attributes
                 MergeCells(worksheet, 3);
                 MergeCells(worksheet, 4);
 
+                FormatAllDecimals(worksheet);
+
                 //设边框
                 SetBorderStyle(worksheet.Cells[6, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column]);
                 package.SaveAs(new FileInfo(saveExcelPath));
@@ -489,6 +491,51 @@ namespace 水库项目出表.Attributes
                 index = (index - modulo) / 26;
             }
             return columnName;
+        }
+        
+        /// <summary>
+        /// 全局通用：遍历处理 Excel 中所有浮点数的保留位数（不足自动补0，兼容空单元格）
+        /// </summary>
+        /// <param name="worksheet">当前工作表</param>
+        /// <param name="digit">需要保留的小数位数</param>
+        public void FormatAllDecimals(ExcelWorksheet worksheet)
+        {
+            // 防御性判断，如果是空表直接跳过
+            if (worksheet.Dimension == null) return;
+
+            // 动态生成格式，例如 digit 为 4，则生成 "0.0000"
+            string formatStr = _digit > 0 ? "0." + new string('0', _digit) : "0";
+    
+            int maxRow = worksheet.Dimension.End.Row;
+            int maxCol = worksheet.Dimension.End.Column;
+
+            // 【彻底不写死】：从第 1 行扫到最后 1 行，从第 1 列扫到最后 1 列
+            for (int row = 1; row <= maxRow; row++)
+            {
+                for (int col = 1; col <= maxCol; col++)
+                {
+                    var cell = worksheet.Cells[row, col];
+                    var val = cell.Value;
+                    
+                    if (val == null || string.IsNullOrWhiteSpace(val.ToString()))
+                    {
+                        continue;
+                    }
+                    
+                    if (val is double || val is decimal || val is float)
+                    {
+                        // 将值转为 decimal 进行精确比对是否为 0
+                        decimal num = Convert.ToDecimal(val);
+                
+                        if (num != 0) 
+                        {
+                            // 只有【不是0】的面积，才进行补齐（例如 0.0030）
+                            cell.Style.Numberformat.Format = formatStr;
+                        }
+                        // 如果是 0，直接进入下一个循环，不处理（即保持 Excel 默认的 0）
+                    }
+                }
+            }
         }
     }
 }

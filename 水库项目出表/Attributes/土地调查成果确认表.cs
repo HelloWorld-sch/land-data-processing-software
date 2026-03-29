@@ -149,12 +149,7 @@ namespace 水库项目出表.Attributes
                             i++;
                         }
 
-                        ////如果不够28行，则增加
-                        //int total = 28;
-                        //if (i + 1 < total)
-                        //{
-                        //    worksheet.InsertRow(i+startIndex, total-i,startIndex);//插入行
-                        //}
+                        FormatAllDecimals(worksheet);
                         package.SaveAs(new FileInfo(saveExcelPath));
                     }
                 }

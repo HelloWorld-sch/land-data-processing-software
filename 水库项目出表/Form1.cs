@@ -130,6 +130,8 @@ namespace 水库项目出表
                 if (!Directory.Exists(saveDir))
                     Directory.CreateDirectory(saveDir);
 
+                var digit = numericUpDown1.Value;
+
                 //导出数据
                 string reservoirName = textBox1.Text.Trim();//水库名称
                 string zbdw = textBox2.Text.Trim();//制表单位
@@ -140,7 +142,7 @@ namespace 水库项目出表
                 parameter.SaveDirectory = saveDir;
                 parameter.Unit = zbdw;
                 parameter.UseType = sylx;
-                Export export = new Export(parameter);
+                Export export = new Export(parameter, digit);
                 if(checkBox1.Checked)
                     export.土地调查成果确认表(comboBox3.SelectedItem.ToString());
                 if (checkBox2.Checked)
@@ -272,6 +274,21 @@ namespace 水库项目出表
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }

@@ -34,28 +34,30 @@ namespace 水库项目出表.Attributes
                     string county = xzq.County;
 
                     var query = (from b in _table.Select("市州='" + city + "' and 县='" + county + "'")
-                        let jt = b.Field<string>("乡镇") + b.Field<string>("村") + b.Field<string>("组")
-                        group b by new
-                        {
-                            QSDW = b.Field<string>("权属性质") == "集体" ? jt : b.Field<string>("国有权属单位名称"),
-                            QSXZ = b.Field<string>("权属性质")
-                        }
-                        into g
-                        select new
-                        {
-                            土地权利人 = g.Key.QSDW,
-                            权属性质 = g.Key.QSXZ,
-                            乡镇 = g.First().Field<string>("乡镇"),  // 从组内第一条记录获取乡镇
-                            村 = g.First().Field<string>("村"),    // 从组内第一条记录获取村
-                            组数字 = string.IsNullOrEmpty(g.First().Field<string>("组"))
-                                ? int.MaxValue
-                                : _digitRegex.Match(g.First().Field<string>("组")) is Match match && match.Success
-                                    ? int.Parse(match.Value)
-                                    : int.MaxValue,
-                            拟占土地面积 = g.Where(c => selectCodes.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("图斑面积")),
-                            耕地 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("图斑面积")),
-                            田坎 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("田坎面积"))
-                        }).OrderByDescending(p => p.权属性质)
+                            let jt = b.Field<string>("乡镇") + b.Field<string>("村") + b.Field<string>("组")
+                            group b by new
+                            {
+                                QSDW = b.Field<string>("权属性质") == "集体" ? jt : b.Field<string>("国有权属单位名称"),
+                                QSXZ = b.Field<string>("权属性质")
+                            }
+                            into g
+                            select new
+                            {
+                                土地权利人 = g.Key.QSDW,
+                                权属性质 = g.Key.QSXZ,
+                                乡镇 = g.First().Field<string>("乡镇"), // 从组内第一条记录获取乡镇
+                                村 = g.First().Field<string>("村"), // 从组内第一条记录获取村
+                                组数字 = string.IsNullOrEmpty(g.First().Field<string>("组"))
+                                    ? int.MaxValue
+                                    : _digitRegex.Match(g.First().Field<string>("组")) is Match match && match.Success
+                                        ? int.Parse(match.Value)
+                                        : int.MaxValue,
+                                拟占土地面积 = g.Where(c => selectCodes.Contains(c.Field<string>("地类代码")))
+                                    .Sum(d => d.Field<int>("图斑面积")),
+                                耕地 = g.Where(c => gddm.Contains(c.Field<string>("地类代码")))
+                                    .Sum(d => d.Field<int>("图斑面积")),
+                                田坎 = g.Where(c => gddm.Contains(c.Field<string>("地类代码"))).Sum(d => d.Field<int>("田坎面积"))
+                            }).OrderByDescending(p => p.权属性质)
                         .ThenBy(p => p.乡镇)
                         .ThenBy(p => p.村)
                         .ThenBy(p => p.组数字);
@@ -63,7 +65,7 @@ namespace 水库项目出表.Attributes
                     string dir = Path.Combine(_saveDir, methodName + "-" + _sylx, city, county);
                     if (!Directory.Exists(dir))
                         Directory.CreateDirectory(dir);
-                    string saveExcelPath = Path.Combine(dir,methodName+ ".xlsx");
+                    string saveExcelPath = Path.Combine(dir, methodName + ".xlsx");
 
                     using (ExcelPackage package = new ExcelPackage(new FileInfo(templatePath)))
                     {
@@ -100,13 +102,18 @@ namespace 水库项目出表.Attributes
                                 worksheet.Cells[currentRowIndex, 8].Value = tillArea; //耕地
                             i++;
                         }
+
                         var lastRowIndex = i + startIndex;
                         worksheet.Cells["A2"].Value = worksheet.Cells["A2"].Text.Replace("#水库名#", _reservoirName);
                         worksheet.Cells["F2"].Value = worksheet.Cells["F2"].Text.Replace("#区县名#", county);
                         worksheet.Cells["H2"].Value = worksheet.Cells["H2"].Text.Replace("#单位#", unit);
-                        worksheet.Cells["G" + (lastRowIndex + 1)].Value = worksheet.Cells["G" + (lastRowIndex + 1)].Text.Replace("#制表单位#", _zbdw);
+                        worksheet.Cells["G" + (lastRowIndex + 1)].Value = worksheet.Cells["G" + (lastRowIndex + 1)].Text
+                            .Replace("#制表单位#", _zbdw);
                         worksheet.Cells["G" + lastRowIndex].Value = sumLandArea;
-                        worksheet.Cells["H" + lastRowIndex].Value= sumTillArea;
+                        worksheet.Cells["H" + lastRowIndex].Value = sumTillArea;
+                        
+                        FormatAllDecimals(worksheet);
+                        
                         package.SaveAs(new FileInfo(saveExcelPath));
                     }
                 }
@@ -114,13 +121,13 @@ namespace 水库项目出表.Attributes
             catch (Exception e)
             {
                 log.Error("导出" + methodName + "失败," + e.ToString());
-                throw ;
+                throw;
             }
         }
 
         public double GetRound(double value)
         {
-            return Math.Round(value, 2, MidpointRounding.AwayFromZero);
+            return Math.Round(value, _digit, MidpointRounding.AwayFromZero);
         }
     }
 }

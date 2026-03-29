@@ -78,44 +78,5 @@ namespace 水库项目出表.Attributes
                     throw new Exception("地类名称:" + dlmc + ",地类代码:" + dldm + ",不符合三调分类");
             }
         }
-
-        /// <summary>
-        /// 面积平差
-        /// </summary>
-        /// <param name="table"></param>
-        public void Adjustment()
-        {
-            log.Info("进入面积平差");
-            //计算原始总面积
-            int patternSpotArea = Convert.ToInt32(_table.Compute("sum(图斑面积)", ""));
-            int RidgeSum = Convert.ToInt32(_table.Compute("sum(田坎面积)", ""));
-            int shapeAreaSum1 = patternSpotArea - RidgeSum;
-            double mu = GetRound(shapeAreaSum1 * 0.0015);
-            double gq = GetRound(shapeAreaSum1 * 0.0001);
-
-            //计算保留小数位后的总面积
-            double shapeAreaSum2 = Convert.ToDouble(_table.Compute("sum(面积亩)", ""));
-            shapeAreaSum2 = GetRound(shapeAreaSum2);
-
-            double shapeAreaSum3 = Convert.ToDouble(_table.Compute("sum(面积公顷)", ""));
-            shapeAreaSum3 = GetRound(shapeAreaSum3);
-
-            //面积求差
-            double exceptArea_mu = mu - shapeAreaSum2;
-            exceptArea_mu = GetRound(exceptArea_mu);
-
-            double exceptArea_gq = gq - shapeAreaSum3;
-            exceptArea_gq = GetRound(exceptArea_gq);
-
-            //将面积差值分配到河流水面,如果不存在河流水面图斑，则分到面积最大的图斑
-            DataRow tempRow = _table.Select("地类代码='1101'", "图斑面积 desc").FirstOrDefault() ?? _table.Select("", "图斑面积 desc").First();
-            tempRow["面积亩"] = tempRow.Field<double>("面积亩") + exceptArea_mu;
-            tempRow["面积公顷"] = tempRow.Field<double>("面积公顷") + exceptArea_gq;
-        }
-
-        public double GetRound(double value)
-        {
-            return Math.Round(value, 4, MidpointRounding.AwayFromZero);
-        }
     }
 }
