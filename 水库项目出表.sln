@@ -1,7 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11505.172 d18.3
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "水库项目出表", "水库项目出表\水库项目出表.csproj", "{CE4651F5-C79C-48B2-9974-87EDF55C43E6}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LandAreaSettlement", "LandAreaSettlement\LandAreaSettlement.vdproj", "{D23E3AE8-876E-1B75-1032-0FE2350B19F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,8 +17,14 @@ Global
 		{CE4651F5-C79C-48B2-9974-87EDF55C43E6}.Debug|x86.Build.0 = Debug|x86
 		{CE4651F5-C79C-48B2-9974-87EDF55C43E6}.Release|x86.ActiveCfg = Release|x86
 		{CE4651F5-C79C-48B2-9974-87EDF55C43E6}.Release|x86.Build.0 = Release|x86
+		{D23E3AE8-876E-1B75-1032-0FE2350B19F2}.Debug|x86.ActiveCfg = Debug
+		{D23E3AE8-876E-1B75-1032-0FE2350B19F2}.Release|x86.ActiveCfg = Release
+		{D23E3AE8-876E-1B75-1032-0FE2350B19F2}.Release|x86.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9E71EDAE-230A-439D-9CD0-45B46F0F6858}
 	EndGlobalSection
 EndGlobal
