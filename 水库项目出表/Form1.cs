@@ -292,5 +292,10 @@ namespace 水库项目出表
         {
 
         }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
